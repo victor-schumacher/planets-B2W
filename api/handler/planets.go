@@ -15,6 +15,8 @@ func findPlanet(c echo.Context) error {
 	switch searchCriteria {
 	case "id":
 		fmt.Println("find by id" + search)
+	case "name":
+		fmt.Println("find by id" + search)
 	default:
 		fmt.Println("find by name" + search)
 	}
