@@ -1,17 +1,12 @@
 package handler
 
 import (
-	"fmt"
+	"errors"
 	"github.com/labstack/echo/v4"
 	"github.com/victor-schumacher/planets-B2W/database/mongo/repository"
 	"github.com/victor-schumacher/planets-B2W/entity"
+	"net/http"
 )
-
-type Planet struct {
-	Name    string `json:"name" validate:"required"`
-	Climate string `json:"climate" validate:"required"`
-	Ground  string `json:"ground" validate:"required"`
-}
 
 type Manager struct {
 	planetRepo repository.Planet
@@ -22,47 +17,67 @@ func NewHandler(planet repository.Planet) Manager {
 }
 
 func (m Manager) listPlanets(c echo.Context) error {
+	planets, err := m.planetRepo.FindAll()
+	if err != nil {
+		return err
+	}
+
+	if err := c.JSON(http.StatusOK, planets); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (m Manager) findPlanet(c echo.Context) error {
 	searchCriteria := c.Param("searchCriteria")
-	search := c.Param("search")
-	switch searchCriteria {
-	case "id":
-		fmt.Println("find by id" + search)
-	case "name":
-		fmt.Println("find by id" + search)
-	default:
-		fmt.Println("find by name" + search)
+	if !isSearchCriteriaAllowed(searchCriteria) {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New(
+			"search key not allowed").Error(),
+		)
 	}
+
+	search := c.Param("search")
+	p, err := m.planetRepo.FindOne(searchCriteria, search)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusAlreadyReported, err.Error())
+	}
+	if err := c.JSON(http.StatusOK, p); err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
 	return nil
 }
 
 func (m Manager) addPlanet(c echo.Context) error {
-	p := Planet{}
+	p := entity.Planet{}
 	err := c.Bind(&p)
 	if err != nil {
 		return err
 	}
-
-	pe := entity.Planet{
-		Name:          p.Name,
-		Climate:       p.Climate,
-		Ground:        p.Ground,
-		FilmsQuantity: 0,
-	}
-	_, err = m.planetRepo.Save(pe)
+	planet, err := entity.NewPlanet(p.Name, p.Climate, p.Ground)
 	if err != nil {
-		fmt.Print(err)
+		return err
+	}
+	if err = m.planetRepo.Save(planet); err != nil {
+		return err
 	}
 	return nil
 }
 
 func (m Manager) deletePlanet(c echo.Context) error {
 	id := c.Param("id")
-	fmt.Println(id)
+	if err := m.planetRepo.Delete(id); err != nil {
+		return echo.NewHTTPError(http.StatusAlreadyReported, err.Error())
+	}
 	return nil
+}
+
+func isSearchCriteriaAllowed(searchCriteria string) bool {
+	if searchCriteria != "id" &&
+		searchCriteria != "filmsQuantity" {
+		return false
+	}
+	return true
 }
 
 func (m Manager) Handle(e *echo.Echo) {
@@ -71,5 +86,4 @@ func (m Manager) Handle(e *echo.Echo) {
 	p.GET("/:searchCriteria/:search", m.findPlanet)
 	p.POST("", m.addPlanet)
 	p.DELETE("/:id", m.deletePlanet)
-	fmt.Println("here")
 }

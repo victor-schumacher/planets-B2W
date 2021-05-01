@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNewBook(t *testing.T) {
+func TestNewPlanet(t *testing.T) {
 	b, err := NewPlanet("", "", "")
 	assert.Nil(t, err)
 	assert.Equal(t, b.Name, "")

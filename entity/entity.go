@@ -2,8 +2,8 @@ package entity
 
 import "github.com/google/uuid"
 
-type ID = uuid.UUID
+type ID string
 
 func NewID() ID {
-	return uuid.New()
+	return ID(uuid.New().String())
 }
