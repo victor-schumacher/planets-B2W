@@ -51,16 +51,17 @@ func (m Manager) addPlanet(c echo.Context) error {
 	p := entity.Planet{}
 	err := c.Bind(&p)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusAlreadyReported, err.Error())
 	}
 	planet, err := entity.NewPlanet(p.Name, p.Climate, p.Terrain)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusMethodNotAllowed, err.Error())
 	}
 	if err = m.planetRepo.Save(planet); err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return nil
+
+	return c.JSON(http.StatusCreated, "")
 }
 
 func (m Manager) deletePlanet(c echo.Context) error {

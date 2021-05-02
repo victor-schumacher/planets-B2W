@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/victor-schumacher/planets-B2W/api/handler"
 	"github.com/victor-schumacher/planets-B2W/api/integration/starwars"
@@ -9,9 +10,23 @@ import (
 )
 
 func main(){
-	starwars.Planets()
-	db, _ := mongo.NewConnection("")
+	planets, err := starwars.Planets()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	db, err := mongo.NewConnection("")
+	if err != nil {
+		fmt.Println(err)
+	}
 	planetRepo := repository.NewPlanet(db)
+
+	for _, p := range planets {
+		err = planetRepo.SaveCache(p)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 	e := echo.New()
 	planetHandler := handler.NewHandler(planetRepo)
 	planetHandler.Handle(e)
