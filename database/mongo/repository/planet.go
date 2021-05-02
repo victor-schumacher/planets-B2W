@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/victor-schumacher/planets-B2W/api/integration/starwars"
 	"github.com/victor-schumacher/planets-B2W/database/mongo"
 	"github.com/victor-schumacher/planets-B2W/entity"
 	"gopkg.in/mgo.v2"
@@ -9,6 +10,7 @@ import (
 
 type Planet interface {
 	Save(planet entity.Planet) error
+	SaveCache(planet []starwars.PlanetCache) error
 	FindAll() ([]entity.Planet, error)
 	FindOne(searchCriteria string, search interface{}) (entity.Planet, error)
 	Delete(ID string) error
@@ -65,3 +67,10 @@ func (db PlanetRepo) Delete(ID string) error {
 
 	return nil
 }
+
+func (db PlanetRepo) SaveCache(planet []starwars.PlanetCache) error {
+	s := db.getFreshSession()
+	defer s.Close()
+	return s.DB(mongo.DB).C(mongo.PLANETSCACHE).Insert(planet)
+}
+

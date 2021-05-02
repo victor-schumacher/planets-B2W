@@ -31,8 +31,7 @@ func (m Manager) listPlanets(c echo.Context) error {
 func (m Manager) findPlanet(c echo.Context) error {
 	searchCriteria := c.Param("searchCriteria")
 	if !isSearchCriteriaAllowed(searchCriteria) {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New(
-			"search key not allowed").Error(),
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("search key not allowed").Error(),
 		)
 	}
 
@@ -54,7 +53,7 @@ func (m Manager) addPlanet(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	planet, err := entity.NewPlanet(p.Name, p.Climate, p.Ground)
+	planet, err := entity.NewPlanet(p.Name, p.Climate, p.Terrain)
 	if err != nil {
 		return err
 	}
@@ -74,7 +73,7 @@ func (m Manager) deletePlanet(c echo.Context) error {
 
 func isSearchCriteriaAllowed(searchCriteria string) bool {
 	if searchCriteria != "id" &&
-		searchCriteria != "filmsQuantity" {
+		searchCriteria != "name" {
 		return false
 	}
 	return true
