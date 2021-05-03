@@ -1,7 +1,5 @@
 package entity
 
-import "errors"
-
 type Planet struct {
 	ID            ID     `json:"id"`
 	Name          string `json:"name" validate:"required"`
@@ -29,8 +27,8 @@ func NewPlanet(name, climate, terrain string) (Planet, error) {
 }
 
 func (p *Planet) Validate() error {
-	if p.Climate == "" || p.Terrain == "" {
-		return errors.New("change to err invalid entity")
+	if p.Climate == "" || p.Terrain == "" || p.Name == "" {
+		return ErrInvalidEntity
 	}
 	return nil
 }

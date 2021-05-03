@@ -2,7 +2,6 @@ package starwars
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/go-co-op/gocron"
 	"github.com/victor-schumacher/planets-B2W/database/mongo/repository"
 	"github.com/victor-schumacher/planets-B2W/entity"
@@ -22,8 +21,6 @@ type Planet struct {
 	Films   []string `json:"films"`
 }
 
-
-
 type PlanetsCache []entity.PlanetCache
 
 type Manager struct {
@@ -39,6 +36,30 @@ func NewCache(
 		planetRepo: planet,
 		client:     client,
 	}
+}
+
+func (m Manager) StartCron() error {
+	s := gocron.NewScheduler(time.UTC)
+	_, err := s.Every(1).Second().Do(m.cacheUpdate)
+	if err != nil {
+		return err
+	}
+	s.StartAsync()
+	return nil
+}
+
+func (m Manager) cacheUpdate() error {
+	planets, err := m.planets()
+	if err != nil {
+		return err
+	}
+	for _, p := range planets {
+		err = m.planetRepo.SaveCache(p)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m Manager) planets() ([]entity.PlanetCache, error) {
@@ -66,31 +87,5 @@ func (m Manager) planets() ([]entity.PlanetCache, error) {
 		}
 		next = p.Next
 	}
-	fmt.Println(psc)
 	return psc, nil
-}
-
-func (m Manager) CacheUpdate() error {
-	planets, err := m.planets()
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	for _, p := range planets {
-		err = m.planetRepo.SaveCache(p)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (m Manager) StartCron() error {
-	s := gocron.NewScheduler(time.UTC)
-	_, err := s.Every(1).Second().Do(m.CacheUpdate)
-	if err != nil {
-		return err
-	}
-	s.StartAsync()
-	return nil
 }

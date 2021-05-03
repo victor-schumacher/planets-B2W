@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"errors"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/victor-schumacher/planets-B2W/database/mongo/repository"
 	"github.com/victor-schumacher/planets-B2W/entity"
@@ -12,11 +12,11 @@ type Manager struct {
 	planetRepo repository.Planet
 }
 
-func NewHandler(planet repository.Planet) Manager {
+func NewPlanet(planet repository.Planet) Manager {
 	return Manager{planetRepo: planet}
 }
 
-func (m Manager) listPlanets(c echo.Context) error {
+func (m Manager) listAll(c echo.Context) error {
 	planets, err := m.planetRepo.FindAll()
 	if err != nil {
 		return err
@@ -24,12 +24,13 @@ func (m Manager) listPlanets(c echo.Context) error {
 	return c.JSON(http.StatusOK, planets)
 }
 
-func (m Manager) findPlanet(c echo.Context) error {
+func (m Manager) findOne(c echo.Context) error {
 	searchCriteria := c.Param("searchCriteria")
+	fmt.Println(searchCriteria)
 	if !isSearchCriteriaAllowed(searchCriteria) {
 		return echo.NewHTTPError(
 			http.StatusBadRequest,
-			errors.New("search key not allowed").Error(),
+			fmt.Errorf("search key %q not allowed", searchCriteria),
 		)
 	}
 
@@ -42,10 +43,9 @@ func (m Manager) findPlanet(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-func (m Manager) addPlanet(c echo.Context) error {
+func (m Manager) add(c echo.Context) error {
 	p := entity.Planet{}
-	err := c.Bind(&p)
-	if err != nil {
+	if err := c.Bind(&p); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -78,8 +78,8 @@ func isSearchCriteriaAllowed(searchCriteria string) bool {
 
 func (m Manager) Handle(e *echo.Echo) {
 	p := e.Group("/planets")
-	p.GET("", m.listPlanets)
-	p.GET("/:searchCriteria/:search", m.findPlanet)
-	p.POST("", m.addPlanet)
+	p.GET("", m.listAll)
+	p.GET("/:searchCriteria/:search", m.findOne)
+	p.POST("", m.add)
 	p.DELETE("/:id", m.deletePlanet)
 }

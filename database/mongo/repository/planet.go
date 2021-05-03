@@ -12,7 +12,6 @@ type Planet interface {
 	SaveCache(planet entity.PlanetCache) error
 	FindAll() ([]entity.Planet, error)
 	FindOne(searchCriteria string, search interface{}) (entity.Planet, error)
-	filmsQuantity(planetName string) (int, error)
 	Delete(ID string) error
 }
 
@@ -27,9 +26,7 @@ func NewPlanet(dbSession *mgo.Session) PlanetRepo {
 func (db PlanetRepo) Save(planet entity.Planet) error {
 	s := db.getFreshSession()
 	defer s.Close()
-
-
-	q, err  := db.filmsQuantity(planet.Name)
+	q, err := db.filmsQuantity(planet.Name)
 	if err != nil {
 		return err
 	}
@@ -37,12 +34,28 @@ func (db PlanetRepo) Save(planet entity.Planet) error {
 	return s.DB(mongo.DB).C(mongo.PLANETS).Insert(planet)
 }
 
+func (db PlanetRepo) filmsQuantity(planetName string) (int, error) {
+	s := db.getFreshSession()
+	defer s.Close()
+	p := entity.PlanetCache{}
+	if err := s.DB(mongo.DB).C(mongo.PLANETSCACHE).
+		Find(bson.M{"name": planetName}).
+		One(&p);
+		err != nil {
+		return p.FilmsQuantity, err
+	}
+	return p.FilmsQuantity, nil
+}
+
 func (db PlanetRepo) FindAll() ([]entity.Planet, error) {
 	s := db.getFreshSession()
 	defer s.Close()
 
 	var planets []entity.Planet
-	if err := s.DB(mongo.DB).C(mongo.PLANETS).Find(nil).All(&planets); err != nil {
+	if err := s.DB(mongo.DB).C(mongo.PLANETS).
+		Find(nil).
+		All(&planets);
+		err != nil {
 		return nil, err
 	}
 	return planets, nil
@@ -68,28 +81,12 @@ func (db PlanetRepo) FindOne(searchCriteria string, search interface{}) (entity.
 func (db PlanetRepo) Delete(ID string) error {
 	s := db.getFreshSession()
 	defer s.Close()
-	if err := s.DB(mongo.DB).C(mongo.PLANETS).Remove(bson.M{"id": ID}); err != nil {
-		return err
-	}
-
-	return nil
+	return s.DB(mongo.DB).C(mongo.PLANETS).
+		Remove(bson.M{"id": ID})
 }
 
 func (db PlanetRepo) SaveCache(planet entity.PlanetCache) error {
 	s := db.getFreshSession()
 	defer s.Close()
 	return s.DB(mongo.DB).C(mongo.PLANETSCACHE).Insert(planet)
-}
-
-func (db PlanetRepo) filmsQuantity(planetName string) (int, error) {
-	s := db.getFreshSession()
-	defer s.Close()
-	p := entity.PlanetCache{}
-	if err := s.DB(mongo.DB).C(mongo.PLANETSCACHE).
-		Find(bson.M{"name":planetName}).
-		One(&p);
-		err != nil {
-		return p.FilmsQuantity, err
-	}
-	return p.FilmsQuantity, nil
 }
