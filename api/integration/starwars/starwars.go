@@ -40,7 +40,7 @@ func NewCache(
 
 func (m Manager) StartCron() error {
 	s := gocron.NewScheduler(time.UTC)
-	_, err := s.Every(1).Second().Do(m.cacheUpdate)
+	_, err := s.Every(12).Hours().Do(m.cacheUpdate)
 	if err != nil {
 		return err
 	}

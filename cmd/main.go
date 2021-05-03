@@ -18,7 +18,7 @@ func main() {
 }
 
 func run() error {
-	db, err := mongo.NewConnection("mongodb://127.0.0.1:27017")
+	db, err := mongo.NewConnection(mongo.DBURL)
 	if err != nil {
 		return err
 	}

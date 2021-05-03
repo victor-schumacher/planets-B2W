@@ -21,6 +21,7 @@ func (m Manager) listAll(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	return c.JSON(http.StatusOK, planets)
 }
 
@@ -37,7 +38,7 @@ func (m Manager) findOne(c echo.Context) error {
 	search := c.Param("search")
 	p, err := m.planetRepo.FindOne(searchCriteria, search)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusAlreadyReported, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, p)
@@ -57,13 +58,13 @@ func (m Manager) add(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, "")
+	return c.NoContent(http.StatusCreated)
 }
 
 func (m Manager) deletePlanet(c echo.Context) error {
 	id := c.Param("id")
 	if err := m.planetRepo.Delete(id); err != nil {
-		return echo.NewHTTPError(http.StatusAlreadyReported, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil
 }
