@@ -21,17 +21,15 @@ func (m Manager) listPlanets(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-
-	if err := c.JSON(http.StatusOK, planets); err != nil {
-		return err
-	}
-	return nil
+	return c.JSON(http.StatusOK, planets)
 }
 
 func (m Manager) findPlanet(c echo.Context) error {
 	searchCriteria := c.Param("searchCriteria")
 	if !isSearchCriteriaAllowed(searchCriteria) {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("search key not allowed").Error(),
+		return echo.NewHTTPError(
+			http.StatusBadRequest,
+			errors.New("search key not allowed").Error(),
 		)
 	}
 
@@ -40,25 +38,23 @@ func (m Manager) findPlanet(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusAlreadyReported, err.Error())
 	}
-	if err := c.JSON(http.StatusOK, p); err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
-	}
 
-	return nil
+	return c.JSON(http.StatusOK, p)
 }
 
 func (m Manager) addPlanet(c echo.Context) error {
 	p := entity.Planet{}
 	err := c.Bind(&p)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusAlreadyReported, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	planet, err := entity.NewPlanet(p.Name, p.Climate, p.Terrain)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusMethodNotAllowed, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	if err = m.planetRepo.Save(planet); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusCreated, "")

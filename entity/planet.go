@@ -10,6 +10,11 @@ type Planet struct {
 	FilmsQuantity int    `json:"filmsQuantity" validate:"required"`
 }
 
+type PlanetCache struct {
+	Name          string `json:"name"`
+	FilmsQuantity int    `json:"filmsquantity"`
+}
+
 func NewPlanet(name, climate, terrain string) (Planet, error) {
 	p := Planet{
 		ID:      NewID(),

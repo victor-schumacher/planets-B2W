@@ -2,15 +2,13 @@ package starwars
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/go-co-op/gocron"
+	"github.com/victor-schumacher/planets-B2W/database/mongo/repository"
+	"github.com/victor-schumacher/planets-B2W/entity"
 	"net/http"
 	"time"
 )
-
-const (
-	URL = "https://swapi.dev/api/planets/"
-)
-
-var swClient = http.Client{Timeout: time.Second * 2}
 
 type Response struct {
 	Next    string   `json:"next"`
@@ -18,24 +16,36 @@ type Response struct {
 }
 
 type Planet struct {
-	Name          string   `json:"name"`
-	Climate       string   `json:"climate"`
-	Terrain       string   `json:"terrain"`
-	Films         []string `json:"films"`
+	Name    string   `json:"name"`
+	Climate string   `json:"climate"`
+	Terrain string   `json:"terrain"`
+	Films   []string `json:"films"`
 }
 
-type PlanetCache struct {
-	Name          string `json:"name"`
-	FilmsQuantity int    `json:"filmsquantity"`
+
+
+type PlanetsCache []entity.PlanetCache
+
+type Manager struct {
+	planetRepo repository.Planet
+	client     http.Client
 }
 
-type PlanetsCache []PlanetCache
+func NewCache(
+	planet repository.Planet,
+	client http.Client,
+) Manager {
+	return Manager{
+		planetRepo: planet,
+		client:     client,
+	}
+}
 
-func Planets() ([]PlanetCache, error) {
+func (m Manager) planets() ([]entity.PlanetCache, error) {
 	next := "https://swapi.dev/api/planets/"
-	var psc []PlanetCache
+	var psc []entity.PlanetCache
 	for {
-		r, err := swClient.Get(next)
+		r, err := m.client.Get(next)
 		if err != nil {
 			return nil, err
 		}
@@ -44,8 +54,7 @@ func Planets() ([]PlanetCache, error) {
 			return nil, err
 		}
 
-		pc := PlanetCache{}
-
+		pc := entity.PlanetCache{}
 		for _, planet := range p.Planets {
 			pc.FilmsQuantity = len(planet.Films)
 			pc.Name = planet.Name
@@ -57,7 +66,31 @@ func Planets() ([]PlanetCache, error) {
 		}
 		next = p.Next
 	}
-
-
+	fmt.Println(psc)
 	return psc, nil
+}
+
+func (m Manager) CacheUpdate() error {
+	planets, err := m.planets()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	for _, p := range planets {
+		err = m.planetRepo.SaveCache(p)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m Manager) StartCron() error {
+	s := gocron.NewScheduler(time.UTC)
+	_, err := s.Every(1).Second().Do(m.CacheUpdate)
+	if err != nil {
+		return err
+	}
+	s.StartAsync()
+	return nil
 }
