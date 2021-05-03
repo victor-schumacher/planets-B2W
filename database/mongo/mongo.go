@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	DB      = "myplanets"
-	PLANETS = "planets"
+	DB           = "myplanets"
+	PLANETS      = "planets"
 	PLANETSCACHE = "planetsCache"
 )
 

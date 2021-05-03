@@ -40,8 +40,7 @@ func (db PlanetRepo) filmsQuantity(planetName string) (int, error) {
 	p := entity.PlanetCache{}
 	if err := s.DB(mongo.DB).C(mongo.PLANETSCACHE).
 		Find(bson.M{"name": planetName}).
-		One(&p);
-		err != nil {
+		One(&p); err != nil {
 		return p.FilmsQuantity, err
 	}
 	return p.FilmsQuantity, nil
@@ -54,8 +53,7 @@ func (db PlanetRepo) FindAll() ([]entity.Planet, error) {
 	var planets []entity.Planet
 	if err := s.DB(mongo.DB).C(mongo.PLANETS).
 		Find(nil).
-		All(&planets);
-		err != nil {
+		All(&planets); err != nil {
 		return nil, err
 	}
 	return planets, nil
@@ -71,8 +69,7 @@ func (db PlanetRepo) FindOne(searchCriteria string, search interface{}) (entity.
 	p := entity.Planet{}
 	if err := s.DB(mongo.DB).C(mongo.PLANETS).
 		Find(bson.M{searchCriteria: search}).
-		One(&p);
-		err != nil {
+		One(&p); err != nil {
 		return p, err
 	}
 	return p, nil

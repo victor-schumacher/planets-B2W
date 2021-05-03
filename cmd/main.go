@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/victor-schumacher/planets-B2W/api"
 	"github.com/victor-schumacher/planets-B2W/api/handler"
 	"github.com/victor-schumacher/planets-B2W/api/integration/starwars"
 	"github.com/victor-schumacher/planets-B2W/database/mongo"
@@ -33,6 +34,6 @@ func run() error {
 	e := echo.New()
 	planetHandler := handler.NewPlanet(planetRepo)
 	planetHandler.Handle(e)
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":" + api.Port))
 	return nil
 }
