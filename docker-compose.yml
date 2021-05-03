@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
   mongodb:
@@ -11,3 +11,4 @@ services:
 volumes:
   mongodb_data:
     driver: local
+
