@@ -28,6 +28,7 @@ pesquisar por nome
 
 ### POST
 criar um novo planeta, a quantidade de filmes é adicionada conforme a [api](http://swapi.dev/api/planets/) do Star Wars
+
 /planets
 
 body:
