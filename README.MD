@@ -27,6 +27,7 @@ pesquisar por nome
 /planets/name/Tatooine
 
 ### POST
+criar um novo planeta, a quantidade de filmes é adicionada conforme a [api](http://swapi.dev/api/planets/) do Star Wars
 /planets
 
 body:
@@ -36,8 +37,7 @@ body:
     "terrain":"desert"
 }`
 
-criar um novo planeta, a quantidade de filmes é adicionada conforme a [api](http://swapi.dev/api/planets/) do Star Wars
-
 ### Delete
-
+deletar por id
 /planets/d647faa7-c945-443f-9fc9-a06e7196e8fc
+
