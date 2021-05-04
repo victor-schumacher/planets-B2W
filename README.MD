@@ -13,8 +13,31 @@
 ### Rodar os testes
 `make test` ou `go test ./...
 
-### Build
+## Endpoints
 
-`make build`
+### GET
 
+pesquisar todos
+/planets
 
+pesquisar por id
+/planets/id/d647faa7-c945-443f-9fc9-a06e7196e8fc
+
+pesquisar por nome
+/planets/name/Tatooine
+
+### POST
+/planets
+
+body:
+`{
+    "name":"Tatooine",
+    "climate":"arid",
+    "terrain":"desert"
+}`
+
+criar um novo planeta, a quantidade de filmes é adicionada conforme a [api](http://swapi.dev/api/planets/) do Star Wars
+
+### Delete
+
+/planets/d647faa7-c945-443f-9fc9-a06e7196e8fc
