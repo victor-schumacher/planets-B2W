@@ -38,7 +38,7 @@ body:
     "terrain":"desert"
 }`
 
-### Delete
+### DELETE
 deletar por id
 /planets/d647faa7-c945-443f-9fc9-a06e7196e8fc
 
