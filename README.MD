@@ -17,19 +17,22 @@
 
 ### GET
 
-pesquisar todos
-/planets
+Pesquisar todos:
 
-pesquisar por id
-/planets/id/d647faa7-c945-443f-9fc9-a06e7196e8fc
+`/planets`
 
-pesquisar por nome
-/planets/name/Tatooine
+Pesquisar por id:
+
+`/planets/id/d647faa7-c945-443f-9fc9-a06e7196e8fc`
+
+Pesquisar por nome:
+
+`/planets/name/Tatooine`
 
 ### POST
-criar um novo planeta, a quantidade de filmes é adicionada conforme a [api](http://swapi.dev/api/planets/) do Star Wars
+Criar um novo planeta, a quantidade de filmes é adicionada conforme a [api](http://swapi.dev/api/planets/) do Star Wars:
 
-/planets
+`/planets`
 
 body:
 `{
@@ -39,6 +42,7 @@ body:
 }`
 
 ### DELETE
-deletar por id
-/planets/d647faa7-c945-443f-9fc9-a06e7196e8fc
+Por id:
+
+`/planets/d647faa7-c945-443f-9fc9-a06e7196e8fc`
 
