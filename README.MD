@@ -11,7 +11,7 @@
 `make run` ou `go run ./cmd/main.go` na raiz do projeto
 
 ### Rodar os testes
-`make test` ou `go test ./...
+`make test` ou `go test ./...`
 
 ## Endpoints
 
